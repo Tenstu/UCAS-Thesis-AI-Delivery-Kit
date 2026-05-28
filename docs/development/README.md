@@ -14,6 +14,26 @@ previous thesis working tree.
 7. Verify CLI help, privacy checks, format checks, pack dry-run, PDF build, and DOCX export.
 8. Keep generated files under ignored paths such as `dist/` and `.latex-cache/`.
 
+## Phase 1/2 Verification Evidence
+
+Current Phase 1/2 verification commands:
+
+```bash
+python -m pytest tests/ -v
+python scripts/ucas.py --help
+python scripts/ucas.py prepare-tex --help
+python scripts/ucas.py check-format-quality --help
+python scripts/ucas.py fix-format --help
+```
+
+The Phase 2 follow-up run on 2026-05-28 passed `57` existing tests plus `4`
+new CLI regression tests. The CLI help output lists `prepare-tex`,
+`check-format-quality`, and `fix-format`.
+
+`check-format-quality` and `fix-format` are thesis-project commands. They expect
+`main.tex` and `extraTex/` under `--project-dir`; running them against this tool
+repository root is a usage error, not a successful smoke test.
+
 ## Local Skills Referenced During Development
 
 The following local skills guided the implementation process only:

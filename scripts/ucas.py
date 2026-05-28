@@ -18,6 +18,8 @@ from scripts.tex_preprocessing.prepare_tex_for_word_export import (
     build_steps as build_tex_preprocessing_steps,
     run_step as run_tex_preprocessing_step,
 )
+from scripts.format_tools.check_format_quality import run as run_format_quality_check
+from scripts.format_tools.format_repair import main as run_format_repair
 
 
 def _project_dir(value: str | None) -> Path:
@@ -146,6 +148,15 @@ def cmd_pack(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_with_argv(argv: list[str], runner) -> int:
+    previous_argv = sys.argv[:]
+    try:
+        sys.argv = argv
+        return runner()
+    finally:
+        sys.argv = previous_argv
+
+
 def cmd_prepare_tex(args: argparse.Namespace) -> int:
     project_dir = _project_dir(args.project_dir)
     if not project_dir.exists():
@@ -171,6 +182,61 @@ def cmd_prepare_tex(args: argparse.Namespace) -> int:
             return exit_code
     print("[OK] 预处理链执行完成。")
     return 0
+
+
+def cmd_check_format_quality(args: argparse.Namespace) -> int:
+    project_dir = _project_dir(args.project_dir)
+    if not project_dir.exists():
+        print(f"[ERROR] 项目目录不存在：{project_dir}")
+        return 1
+
+    mode = args.mode if hasattr(args, "mode") else "fast"
+    print(f"[INFO] mode={mode} project_dir={project_dir}")
+
+    quality_argv = [
+        "check_format_quality.py",
+        "--mode", mode,
+        "--project-dir", str(project_dir),
+    ]
+    if hasattr(args, "emit_json") and args.emit_json:
+        quality_argv.append("--emit-json")
+    if hasattr(args, "emit_json") and not args.emit_json:
+        quality_argv.append("--no-emit-json")
+    if hasattr(args, "emit_markdown") and args.emit_markdown:
+        quality_argv.append("--emit-markdown")
+    if hasattr(args, "emit_markdown") and not args.emit_markdown:
+        quality_argv.append("--no-emit-markdown")
+    if hasattr(args, "emit_repair_feed") and args.emit_repair_feed:
+        quality_argv.append("--emit-repair-feed")
+    if hasattr(args, "emit_repair_feed") and not args.emit_repair_feed:
+        quality_argv.append("--no-emit-repair-feed")
+
+    return _run_with_argv(quality_argv, run_format_quality_check)
+
+
+def cmd_fix_format(args: argparse.Namespace) -> int:
+    project_dir = _project_dir(args.project_dir)
+    if not project_dir.exists():
+        print(f"[ERROR] 项目目录不存在：{project_dir}")
+        return 1
+
+    if args.apply and args.dry_run:
+        print("[ERROR] `--apply` 与 `--dry-run` 不能同时使用。")
+        return 1
+
+    mode = "apply" if args.apply else "dry-run"
+    print(f"[INFO] mode={mode} project_dir={project_dir}")
+
+    repair_argv = [
+        "format_repair.py",
+        "--project-dir", str(project_dir),
+    ]
+    if not args.apply:
+        repair_argv.append("--dry-run")
+    if hasattr(args, "issues_json") and args.issues_json:
+        repair_argv.extend(["--issues-json", args.issues_json])
+
+    return _run_with_argv(repair_argv, run_format_repair)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -222,6 +288,30 @@ def build_parser() -> argparse.ArgumentParser:
     prepare_tex.add_argument("--apply", action="store_true", help="Apply changes (default: dry-run)")
     prepare_tex.add_argument("--dry-run", action="store_true", help="Explicit dry-run mode")
     prepare_tex.set_defaults(func=cmd_prepare_tex)
+
+    check_format_quality = subparsers.add_parser(
+        "check-format-quality",
+        help="Run format quality check (fast or full mode)",
+    )
+    add_project_arg(check_format_quality)
+    check_format_quality.add_argument("--mode", default="fast", choices=["fast", "full"], help="Check mode")
+    check_format_quality.add_argument("--emit-json", dest="emit_json", action="store_true", default=True, help="Output JSON report (default)")
+    check_format_quality.add_argument("--no-emit-json", dest="emit_json", action="store_false", help="Disable JSON report output")
+    check_format_quality.add_argument("--emit-markdown", dest="emit_markdown", action="store_true", default=True, help="Output Markdown report (default)")
+    check_format_quality.add_argument("--no-emit-markdown", dest="emit_markdown", action="store_false", help="Disable Markdown report output")
+    check_format_quality.add_argument("--emit-repair-feed", dest="emit_repair_feed", action="store_true", default=True, help="Output repair feed JSON (default)")
+    check_format_quality.add_argument("--no-emit-repair-feed", dest="emit_repair_feed", action="store_false", help="Disable repair feed JSON output")
+    check_format_quality.set_defaults(func=cmd_check_format_quality)
+
+    fix_format = subparsers.add_parser(
+        "fix-format",
+        help="Run format repair (auto-fix common issues)",
+    )
+    add_project_arg(fix_format)
+    fix_format.add_argument("--apply", action="store_true", help="Apply fixes (default: dry-run)")
+    fix_format.add_argument("--dry-run", action="store_true", help="Preview fixes only")
+    fix_format.add_argument("--issues-json", default=None, help="Path to issues JSON from check-format-quality")
+    fix_format.set_defaults(func=cmd_fix_format)
 
     return parser
 

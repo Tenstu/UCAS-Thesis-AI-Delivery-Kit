@@ -23,3 +23,27 @@
 - Word 与 PDF 的版面差异。
 
 后续规则应优先写成可解释检查项，再决定是否自动化。
+
+## Phase 2 Quality And Repair
+
+`check-format-quality` adds a deeper thesis-project quality pass:
+
+```bash
+python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode full --emit-markdown
+```
+
+Use `fix-format` only after reviewing the report or repair feed:
+
+```bash
+python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
+python scripts/ucas.py fix-format --project-dir <thesis-project> --issues-json .latex-cache/format-fix/latest_check.json --apply
+```
+
+These commands expect a thesis project root containing `main.tex` and
+`extraTex/`. Running them against the tool repository root is expected to fail
+because the root is not itself a thesis project.
+
+Generated reports and feeds are written under `.latex-cache/quality-check/` and
+`.latex-cache/format-fix/`. Automated repair is intentionally dry-run by default;
+human review remains required before applying edits.
