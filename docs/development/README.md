@@ -26,13 +26,14 @@ python scripts/ucas.py check-format-quality --help
 python scripts/ucas.py fix-format --help
 ```
 
-The Phase 2 follow-up run on 2026-05-28 passed `57` existing tests plus `4`
-new CLI regression tests. The CLI help output lists `prepare-tex`,
-`check-format-quality`, and `fix-format`.
+The Phase 2 follow-up run on 2026-05-28 passed `63` tests, including the
+checked-in `examples/thesis-project` smoke path. The CLI help output lists
+`prepare-tex`, `check-format-quality`, and `fix-format`.
 
 `check-format-quality` and `fix-format` are thesis-project commands. They expect
 `main.tex` and `extraTex/` under `--project-dir`; running them against this tool
-repository root is a usage error, not a successful smoke test.
+repository root is a usage error, not a successful smoke test. Use
+`examples/thesis-project` for the checked-in synthetic Phase 2 smoke project.
 
 ## Local Skills Referenced During Development
 

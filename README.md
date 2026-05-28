@@ -26,8 +26,8 @@ python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
 python scripts/ucas.py check-format --project-dir .
-python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast --emit-json --emit-repair-feed
-python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
+python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
@@ -98,6 +98,8 @@ They are not required to run the CLI.
 `check-format-quality` and `fix-format` expect a thesis project root containing
 `main.tex` and `extraTex/`; use a real thesis project as `--project-dir`, not
 the tool repository root or the minimal `template/tex` smoke-test fixture.
+The checked-in `examples/thesis-project` directory is a synthetic project root
+for these Phase 2 smoke commands.
 
 ## Quick Start
 
@@ -107,8 +109,8 @@ python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
 python scripts/ucas.py check-format --project-dir .
-python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast
-python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
+python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast
+python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
@@ -152,7 +154,7 @@ UCAS-Thesis-AI-Delivery-Kit/
 │   ├── development/        # build process and development notes
 │   └── official/           # official-material metadata policy
 ├── prompts/                # reusable AI prompt templates
-├── examples/               # minimal example notes
+├── examples/               # synthetic examples and Phase 2 smoke project
 ├── PROVENANCE.md
 ├── LICENSE-NOTES.md
 ├── LICENSE
@@ -166,8 +168,8 @@ Recommended checks before sharing a package:
 ```bash
 python scripts/ucas.py check-format --project-dir .
 python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
-python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast --emit-json --emit-repair-feed
-python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
+python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --dry-run
 python scripts/ucas.py build-pdf --project-dir template/tex

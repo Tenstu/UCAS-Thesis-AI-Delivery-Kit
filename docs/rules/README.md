@@ -43,6 +43,7 @@ python scripts/ucas.py fix-format --project-dir <thesis-project> --issues-json .
 These commands expect a thesis project root containing `main.tex` and
 `extraTex/`. Running them against the tool repository root is expected to fail
 because the root is not itself a thesis project.
+Use `examples/thesis-project` for a checked-in synthetic smoke project.
 
 Generated reports and feeds are written under `.latex-cache/quality-check/` and
 `.latex-cache/format-fix/`. Automated repair is intentionally dry-run by default;

@@ -1,0 +1,5 @@
+docx_quality_checks: []
+log_warning_baseline: []
+static_pattern_checks: []
+known_experience: []
+severity_map: {}
