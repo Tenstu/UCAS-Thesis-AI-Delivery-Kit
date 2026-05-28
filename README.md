@@ -1,15 +1,19 @@
 # UCAS-Thesis-AI-Delivery-Kit
 
-UCAS Thesis AI Delivery Kit is a delivery-focused toolkit for UCAS dissertations:
-LaTeX -> Word/PDF export, AI-assisted review, format checks, and release gates.
+**LaTeX → Word 交付，国科大学位论文首选**
+
+UCAS Thesis AI Delivery Kit is the first open-source toolkit that enables UCAS dissertations to be exported from LaTeX to Word format for advisor review and submission. It also provides PDF export, AI-assisted review, format checks, and release gates.
 
 中文名：国科大学位论文 AI 交付工具包。
 
+> **核心贡献**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出链路的开源项目，解决导师审阅和学位论文提交的格式转换需求。
+
 ## 中文说明
 
-这是一个面向中国科学院大学学位论文交付流程的工具包，重点不在“再做一套模板”，而在把 LaTeX 写作后的交付链路整理清楚：
+这是一个面向中国科学院大学学位论文交付流程的工具包，重点不在”再做一套模板”，而在把 LaTeX 写作后的交付链路整理清楚：
 
-- **Word/PDF 导出**：用统一命令从 LaTeX 项目构建 PDF，并通过 `pandoc` 导出可审阅的 DOCX。
+- **Word 导出（核心贡献）**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目，通过 `pandoc` 导出可审阅的 DOCX，解决导师审阅和学位论文提交的格式转换需求。
+- **PDF 导出**：用统一命令从 LaTeX 项目构建 PDF。
 - **AI 辅助审阅**：提供可复制的 prompt 模板，用于章节润色、格式审查、参考文献检查和交付门禁判断。
 - **格式自检**：在交付前扫描常见 LaTeX 写作风险，例如未清理占位符、引用标点间距、浮动体参数等。
 - **交付门禁**：打包前检查本机路径、高风险二进制文件、生成物和敏感标记，发布包只包含显式允许的源码、文档、prompt 和合成示例。
@@ -47,9 +51,9 @@ the template:
 
 | Capability | Command or location | Purpose |
 |---|---|---|
+| **Word export (core)** | `python scripts/ucas.py export-docx` | **核心贡献**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目。通过 `pandoc` 导出可审阅的 DOCX，解决导师审阅和学位论文提交的格式转换需求。 |
 | PDF build | `python scripts/ucas.py build-pdf` | Build a thesis PDF through the local LaTeX toolchain. |
 | Spine build | `python scripts/ucas.py build-spine` | Build a spine/cover-side TeX file when the project provides one. |
-| Word export beta | `python scripts/ucas.py export-docx` | Export LaTeX to DOCX through `pandoc`. |
 | Format check | `python scripts/ucas.py check-format` | Scan common LaTeX manuscript risks before handoff. |
 | Privacy check | `python scripts/ucas.py check-privacy` | Detect local paths, sensitive markers, and high-risk binary files. |
 | Release pack | `python scripts/ucas.py pack` | Build a privacy-gated zip from an explicit allowlist. |
@@ -154,6 +158,7 @@ boundaries in [PROVENANCE.md](PROVENANCE.md) and [LICENSE-NOTES.md](LICENSE-NOTE
 
 MVP scaffold:
 
+- **Word export (core contribution)**: 可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目，通过 `pandoc` 导出可审阅的 DOCX
 - unified Python CLI
 - minimal PDF build and DOCX export paths
 - lightweight format and privacy checks
