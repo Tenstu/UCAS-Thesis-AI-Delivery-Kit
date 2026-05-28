@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--glob",
         default=DEFAULT_GLOB,
-        help="传给 normalize_time_unit_spacing.py 的扫描模式",
+        help="传给 fix_spacing.py 和 normalize_time_unit_spacing.py 的扫描模式",
     )
     parser.add_argument(
         "--apply",
@@ -60,7 +60,7 @@ def build_steps(
     fix_spacing_script = script_dir / "fix_spacing.py"
     normalize_script = script_dir / "normalize_time_unit_spacing.py"
 
-    fix_cmd = [python_cmd, str(fix_spacing_script), "--project-dir", str(project_dir)]
+    fix_cmd = [python_cmd, str(fix_spacing_script), "--project-dir", str(project_dir), "--glob", glob_pattern]
     if not apply:
         fix_cmd.append("--dry-run")
 

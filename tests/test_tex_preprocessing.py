@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Tests for TeX preprocessing scripts."""
 
-import tempfile
-from pathlib import Path
-
 import pytest
 
 from scripts.tex_preprocessing.fix_spacing import fix_spacing_in_text
