@@ -5,6 +5,28 @@ LaTeX -> Word/PDF export, AI-assisted review, format checks, and release gates.
 
 中文名：国科大学位论文 AI 交付工具包。
 
+## 中文说明
+
+这是一个面向中国科学院大学学位论文交付流程的工具包，重点不在“再做一套模板”，而在把 LaTeX 写作后的交付链路整理清楚：
+
+- **Word/PDF 导出**：用统一命令从 LaTeX 项目构建 PDF，并通过 `pandoc` 导出可审阅的 DOCX。
+- **AI 辅助审阅**：提供可复制的 prompt 模板，用于章节润色、格式审查、参考文献检查和交付门禁判断。
+- **格式自检**：在交付前扫描常见 LaTeX 写作风险，例如未清理占位符、引用标点间距、浮动体参数等。
+- **交付门禁**：打包前检查本机路径、高风险二进制文件、生成物和敏感标记，发布包只包含显式允许的源码、文档、prompt 和合成示例。
+- **来源可追溯**：用 `PROVENANCE.md` 和 `LICENSE-NOTES.md` 记录模板、官方材料和第三方内容的来源边界。
+
+典型使用路径：
+
+```bash
+python scripts/ucas.py build-pdf --project-dir template/tex
+python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
+python scripts/ucas.py check-format --project-dir .
+python scripts/ucas.py check-privacy --project-dir .
+python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
+```
+
+当前版本是 MVP：已具备统一 CLI、最小 PDF/DOCX 导出链路、轻量格式/隐私检查、AI prompt 模板和发布打包门禁。后续会继续增强 UCAS 模板基线、Word 后处理和更细的格式规则。
+
 ## Why This Project
 
 UCAS thesis writing often starts comfortably in LaTeX, but the final workflow may
