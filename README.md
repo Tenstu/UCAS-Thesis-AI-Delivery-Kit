@@ -1,45 +1,57 @@
 # UCAS-Thesis-AI-Delivery-Kit
 
-UCAS Thesis AI Delivery Kit：国科大学位论文 AI 交付工具包。
+UCAS Thesis AI Delivery Kit is a delivery-focused toolkit for UCAS dissertations:
+LaTeX -> Word/PDF export, AI-assisted review, format checks, and release gates.
 
-LaTeX -> Word/PDF export, AI-assisted review, and delivery gates for UCAS theses.
+中文名：国科大学位论文 AI 交付工具包。
 
-这个项目的重点不是“又一个 UCAS LaTeX 模板”，而是把论文写作交付中的几件难事做成可复用流程：
+## Why This Project
 
-- 从 LaTeX 草稿导出 PDF 和 Word。
-- 对 Word/PDF 交付前的格式风险做自动检查。
-- 在打包前检查隐私、路径、日志和官方二进制原件。
-- 用普通文档和 prompt 模板组织 AI 协作，而不是把个人 agent 体系变成运行依赖。
+UCAS thesis writing often starts comfortably in LaTeX, but the final workflow may
+require Word files, manual format review, advisor feedback, and carefully checked
+delivery packages. This project turns those recurring handoff steps into a small,
+scriptable toolkit.
 
-当前仓库按公开发布口径整理：只展示通用工具、合成示例、文档化流程和 prompt 模板，不展示个人论文写作的具体内容。
+It is not just another UCAS LaTeX template. The main value is the workflow around
+the template:
 
-## Features
+- export LaTeX drafts to reviewable Word and PDF outputs
+- run pre-delivery format checks
+- catch local paths, generated binaries, and risky files before packaging
+- use reusable AI prompts for review, polishing, and delivery decisions
+- package only an explicit allowlist of clean project files
 
-- **Word/PDF export first**: provide one CLI surface for building PDF and exporting DOCX from LaTeX source.
-- **AI-assisted delivery workflow**: keep reusable prompts and review loops in plain Markdown, without requiring a local agent runtime.
-- **Format checks**: scan common LaTeX manuscript risks before delivery.
-- **Privacy checks**: block local paths, private working directories, token-like strings, and suspicious binary originals before packaging.
-- **Release gate**: package only an explicit allowlist of clean source, docs, prompts, and examples.
-- **Private-first provenance**: record upstream/source boundaries before any public release.
+## Highlights
+
+| Capability | Command or location | Purpose |
+|---|---|---|
+| PDF build | `python scripts/ucas.py build-pdf` | Build a thesis PDF through the local LaTeX toolchain. |
+| Spine build | `python scripts/ucas.py build-spine` | Build a spine/cover-side TeX file when the project provides one. |
+| Word export beta | `python scripts/ucas.py export-docx` | Export LaTeX to DOCX through `pandoc`. |
+| Format check | `python scripts/ucas.py check-format` | Scan common LaTeX manuscript risks before handoff. |
+| Privacy check | `python scripts/ucas.py check-privacy` | Detect local paths, sensitive markers, and high-risk binary files. |
+| Release pack | `python scripts/ucas.py pack` | Build a privacy-gated zip from an explicit allowlist. |
+| AI workflow | `prompts/`, `docs/ai-workflow/` | Provide task prompts for review, polish, references, and delivery gates. |
 
 ## Dependencies
 
 Required:
 
-- Python 3.10+.
+- Python 3.10+
 
-Optional but used by core commands:
+Optional by command:
 
-- LaTeX toolchain with `latexmk` or `xelatex` for `build-pdf` and `build-spine`.
-- `pandoc` for `export-docx`.
-- `biber` or `bibtex` for bibliography-aware fallback builds when `latexmk` is unavailable.
+- `latexmk` or `xelatex` for `build-pdf` and `build-spine`
+- `pandoc` for `export-docx`
+- `biber` or `bibtex` for bibliography-aware fallback builds when `latexmk` is unavailable
 
-Development/publishing helpers:
+Development helpers:
 
-- `git` for local version control.
-- GitHub CLI `gh` for creating and pushing the private repository.
+- `git` for version control
+- GitHub CLI `gh` for repository publishing
 
-The local AI skills and subagents used while building this repository are development aids only. They are not runtime dependencies.
+Local AI skills, subagents, and prompt workflows are development and writing aids.
+They are not required to run the CLI.
 
 ## Quick Start
 
@@ -52,81 +64,50 @@ python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
 
-`build-pdf` 需要本机安装 LaTeX 工具链。`export-docx` beta 入口需要 `pandoc`。
-`dist/`、`.latex-cache/` 和生成的 PDF/DOCX 默认不进入发布包；公开分享前仍建议清理生成产物并运行 `check-privacy`。
+The included `template/tex` files are synthetic minimal examples. They are meant
+to exercise the workflow, not to replace the official UCAS requirements.
 
-## Commands
+## CLI Reference
 
 ```bash
-python scripts/ucas.py build-pdf
-python scripts/ucas.py build-spine
-python scripts/ucas.py export-docx
-python scripts/ucas.py check-format
-python scripts/ucas.py check-privacy
-python scripts/ucas.py pack
+python scripts/ucas.py build-pdf     --project-dir <project>
+python scripts/ucas.py build-spine   --project-dir <project>
+python scripts/ucas.py export-docx   --project-dir <project> --output dist/main.docx
+python scripts/ucas.py check-format  --project-dir <project>
+python scripts/ucas.py check-privacy --project-dir <project>
+python scripts/ucas.py pack          --project-dir <project> --output dist/release.zip
 ```
 
-所有命令都支持 `--project-dir` 指向一个论文项目目录。默认目录是当前工作目录。
+All commands accept `--project-dir`. The default is the current working directory.
 
-## Directory Map
+## Project Layout
 
 ```text
 UCAS-Thesis-AI-Delivery-Kit/
-├── template/              # 干净 UCAS LaTeX 模板入口和占位示例
+├── template/              # minimal synthetic TeX entry points
 ├── scripts/
-│   ├── ucas.py             # 统一入口
-│   ├── word_export/        # Word 导出 beta
-│   └── checks/             # 隐私、格式、打包检查
+│   ├── ucas.py             # unified CLI
+│   ├── word_export/        # DOCX export wrapper
+│   └── checks/             # format, privacy, and pack gates
 ├── docs/
-│   ├── word-export/        # Word 导出说明
-│   ├── ai-workflow/        # AI 协作流程
-│   ├── rules/              # UCAS 格式规则与检查口径
-│   ├── development/        # 构建过程、验证和开发辅助说明
-│   └── official/           # 官方材料来源与 checksum 记录
-├── prompts/                # 可复制的 AI prompt 模板
-├── examples/               # 去隐私最小示例
+│   ├── word-export/        # Word export notes
+│   ├── ai-workflow/        # AI collaboration workflow
+│   ├── rules/              # format-rule notes
+│   ├── development/        # build process and development notes
+│   └── official/           # official-material metadata policy
+├── prompts/                # reusable AI prompt templates
+├── examples/               # minimal example notes
 ├── PROVENANCE.md
 ├── LICENSE-NOTES.md
 ├── LICENSE
 └── README.md
 ```
 
-## Migration Policy
+## Verification
 
-迁移能力和抽象流程，不迁移完整私有工作树。
-
-可以迁移：
-
-- UCAS 模板的最小干净入口。
-- Word 导出流程中可复用的公开逻辑。
-- 格式检查、隐私检查、交付门禁。
-- AI 协作流程文档和 prompt 模板。
-
-必须排除：
-
-- 真实论文正文、图表、答辩材料、审稿回复、私有参考资料。
-- `workdirs/`、真实 `plans/`、运行日志、本机路径、私有工具配置。
-- 未确认可再分发的官方 `.doc/.docx/.pdf/.pptx` 原件。
-- 本机 agent 状态、memory、hooks 和隐藏运行目录。
-
-## Provenance
-
-Current MVP source policy:
-
-- No real thesis text, figures, defense slides, review responses, private workdirs, local logs, or official binary originals were migrated.
-- The CLI, checks, docs, prompts, and minimal examples in this scaffold are newly written for this repository.
-- `Tenstu/UCAS-Dissertation` remains a candidate clean UCAS template baseline, but no upstream template files are copied in this MVP.
-- `ChineseResearchLaTeX` is treated as experience and workflow evidence, not as a directory to copy wholesale.
-- Official UCAS materials should be recorded by source URL, acquisition note, checksum, and local placement; they are not committed by default.
-
-See [PROVENANCE.md](PROVENANCE.md) and [LICENSE-NOTES.md](LICENSE-NOTES.md).
-
-## Build And Verification
-
-Recommended local verification:
+Recommended checks before sharing a package:
 
 ```bash
-python scripts/ucas.py --help
 python scripts/ucas.py check-format --project-dir .
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --dry-run
@@ -134,21 +115,32 @@ python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/minimal.docx
 ```
 
-Before sharing a zip:
+`pack` runs the format and privacy gates, then writes only allowlisted files to
+the release zip. Generated files under `dist/` and LaTeX cache directories are
+ignored by Git.
 
-```bash
-python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
-```
+## Source And Licensing
 
-`pack` runs privacy and format gates and only includes allowlisted source files.
+Repository-original code, documentation, prompts, and synthetic examples are
+released under the MIT License.
 
-## Status
+Official UCAS materials and any future third-party template imports must keep
+their own source and redistribution terms. This repository records those
+boundaries in [PROVENANCE.md](PROVENANCE.md) and [LICENSE-NOTES.md](LICENSE-NOTES.md).
+
+## Current Status
 
 MVP scaffold:
 
-- clean project skeleton
-- unified CLI
-- pandoc-based Word export beta
+- unified Python CLI
+- minimal PDF build and DOCX export paths
 - lightweight format and privacy checks
-- pack dry-run and zip gate
-- provenance, license notes, docs, prompts, and synthetic examples
+- explicit allowlist release packaging
+- AI review and delivery prompt templates
+- synthetic TeX example for smoke testing
+
+Planned next steps:
+
+- import or align with a clean UCAS template baseline after provenance review
+- expand Word post-processing beyond the current `pandoc` beta path
+- add more UCAS-specific format rules and regression examples
