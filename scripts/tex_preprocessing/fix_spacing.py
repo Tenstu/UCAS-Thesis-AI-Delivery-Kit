@@ -206,7 +206,7 @@ def fix_spacing_in_text(text):
     return result, changes
 
 
-def process_file(target_path, source_path, dry_run=False, backup_current=True, backup_dir=None):
+def process_file(target_path, source_path, dry_run=False, backup_current=True, backup_dir=None, project_dir=None):
     """处理单个文件：从 source_path 读，写到 target_path。"""
     with open(source_path, encoding="utf-8") as f:
         source_text = f.read()
@@ -244,7 +244,16 @@ def process_file(target_path, source_path, dry_run=False, backup_current=True, b
 
     if backup_current and backup_dir:
         backup_dir.mkdir(parents=True, exist_ok=True)
-        backup_path = backup_dir / target_path.name
+        # Use relative path to avoid conflicts when processing files from different subdirectories
+        if project_dir:
+            try:
+                rel_path = target_path.relative_to(project_dir)
+                backup_path = backup_dir / rel_path
+            except ValueError:
+                backup_path = backup_dir / target_path.name
+        else:
+            backup_path = backup_dir / target_path.name
+        backup_path.parent.mkdir(parents=True, exist_ok=True)
         with open(target_path, encoding="utf-8") as f:
             current_text = f.read()
         with open(backup_path, "w", encoding="utf-8", newline="\n") as f:
@@ -286,6 +295,7 @@ def main():
             dry_run=args.dry_run,
             backup_current=not args.dry_run,
             backup_dir=backup_dir,
+            project_dir=project_dir,
         )
         total_changes += changes
 
