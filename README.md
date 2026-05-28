@@ -23,13 +23,16 @@ UCAS Thesis AI Delivery Kit is the first open-source toolkit that enables UCAS d
 
 ```bash
 python scripts/ucas.py build-pdf --project-dir template/tex
+python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
 python scripts/ucas.py check-format --project-dir .
+python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
 
-当前版本是 MVP：已具备统一 CLI、最小 PDF/DOCX 导出链路、轻量格式/隐私检查、AI prompt 模板和发布打包门禁。后续会继续增强 UCAS 模板基线、Word 后处理和更细的格式规则。
+当前版本是 MVP：已具备统一 CLI、最小 PDF/DOCX 导出链路、Word 导出前 TeX 预处理、轻量格式/隐私检查、格式质量巡检/修复工具、AI prompt 模板和发布打包门禁。后续会继续增强 UCAS 模板基线、Word 后处理和更细的格式规则。
 
 ## 上游项目与关系
 
@@ -61,9 +64,12 @@ the template:
 | Capability | Command or location | Purpose |
 |---|---|---|
 | **Word export (core)** | `python scripts/ucas.py export-docx` | **核心贡献**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目。通过 `pandoc` 导出可审阅的 DOCX，解决导师审阅和学位论文提交的格式转换需求。 |
+| TeX preprocessing | `python scripts/ucas.py prepare-tex` | Normalize TeX source before Word export, including CJK/Latin/number spacing and common time-unit spacing. Defaults to dry-run. |
 | PDF build | `python scripts/ucas.py build-pdf` | Build a thesis PDF through the local LaTeX toolchain. |
 | Spine build | `python scripts/ucas.py build-spine` | Build a spine/cover-side TeX file when the project provides one. |
 | Format check | `python scripts/ucas.py check-format` | Scan common LaTeX manuscript risks before handoff. |
+| Format quality check | `python scripts/ucas.py check-format-quality` | Generate fast/full format QA reports and optional repair feeds. |
+| Format repair | `python scripts/ucas.py fix-format` | Preview or apply common automated repairs. Defaults to dry-run. |
 | Privacy check | `python scripts/ucas.py check-privacy` | Detect local paths, sensitive markers, and high-risk binary files. |
 | Release pack | `python scripts/ucas.py pack` | Build a privacy-gated zip from an explicit allowlist. |
 | AI workflow | `prompts/`, `docs/ai-workflow/` | Provide task prompts for review, polish, references, and delivery gates. |
@@ -79,6 +85,7 @@ Optional by command:
 - `latexmk` or `xelatex` for `build-pdf` and `build-spine`
 - `pandoc` for `export-docx`
 - `biber` or `bibtex` for bibliography-aware fallback builds when `latexmk` is unavailable
+- `PyYAML` for YAML-based rule loading in `check-format-quality` when a rules file is present
 
 Development helpers:
 
@@ -88,13 +95,20 @@ Development helpers:
 Local AI skills, subagents, and prompt workflows are development and writing aids.
 They are not required to run the CLI.
 
+`check-format-quality` and `fix-format` expect a thesis project root containing
+`main.tex` and `extraTex/`; use a real thesis project as `--project-dir`, not
+the tool repository root or the minimal `template/tex` smoke-test fixture.
+
 ## Quick Start
 
 ```bash
 python scripts/ucas.py --help
 python scripts/ucas.py build-pdf --project-dir template/tex
+python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
 python scripts/ucas.py check-format --project-dir .
+python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast
+python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
@@ -107,13 +121,18 @@ to exercise the workflow, not to replace the official UCAS requirements.
 ```bash
 python scripts/ucas.py build-pdf     --project-dir <project>
 python scripts/ucas.py build-spine   --project-dir <project>
+python scripts/ucas.py prepare-tex   --project-dir <project> [--glob "*.tex"] [--dry-run|--apply]
 python scripts/ucas.py export-docx   --project-dir <project> --output dist/main.docx
 python scripts/ucas.py check-format  --project-dir <project>
+python scripts/ucas.py check-format-quality --project-dir <project> --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format    --project-dir <project> [--issues-json .latex-cache/format-fix/latest_check.json] [--dry-run|--apply]
 python scripts/ucas.py check-privacy --project-dir <project>
 python scripts/ucas.py pack          --project-dir <project> --output dist/release.zip
 ```
 
 All commands accept `--project-dir`. The default is the current working directory.
+Commands that can modify TeX files default to dry-run; pass `--apply` only after
+reviewing the proposed changes.
 
 ## Project Layout
 
@@ -123,6 +142,8 @@ UCAS-Thesis-AI-Delivery-Kit/
 ├── scripts/
 │   ├── ucas.py             # unified CLI
 │   ├── word_export/        # DOCX export wrapper
+│   ├── tex_preprocessing/   # Word-export-oriented TeX preprocessing
+│   ├── format_tools/        # format QA and repair utilities
 │   └── checks/             # format, privacy, and pack gates
 ├── docs/
 │   ├── word-export/        # Word export notes
@@ -144,6 +165,9 @@ Recommended checks before sharing a package:
 
 ```bash
 python scripts/ucas.py check-format --project-dir .
+python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
+python scripts/ucas.py check-format-quality --project-dir <thesis-project> --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format --project-dir <thesis-project> --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --dry-run
 python scripts/ucas.py build-pdf --project-dir template/tex
@@ -169,8 +193,10 @@ MVP scaffold:
 
 - **Word export (core contribution)**: 可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目，通过 `pandoc` 导出可审阅的 DOCX
 - unified Python CLI
+- TeX preprocessing before Word export
 - minimal PDF build and DOCX export paths
 - lightweight format and privacy checks
+- fast/full format quality checks and dry-run-first repair tools
 - explicit allowlist release packaging
 - AI review and delivery prompt templates
 - synthetic TeX example for smoke testing

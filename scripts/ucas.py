@@ -148,6 +148,15 @@ def cmd_pack(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_with_argv(argv: list[str], runner) -> int:
+    previous_argv = sys.argv[:]
+    try:
+        sys.argv = argv
+        return runner()
+    finally:
+        sys.argv = previous_argv
+
+
 def cmd_prepare_tex(args: argparse.Namespace) -> int:
     project_dir = _project_dir(args.project_dir)
     if not project_dir.exists():
@@ -184,20 +193,25 @@ def cmd_check_format_quality(args: argparse.Namespace) -> int:
     mode = args.mode if hasattr(args, "mode") else "fast"
     print(f"[INFO] mode={mode} project_dir={project_dir}")
 
-    # Set up sys.argv for the format quality check script
-    sys.argv = [
+    quality_argv = [
         "check_format_quality.py",
         "--mode", mode,
         "--project-dir", str(project_dir),
     ]
     if hasattr(args, "emit_json") and args.emit_json:
-        sys.argv.append("--emit-json")
+        quality_argv.append("--emit-json")
+    if hasattr(args, "emit_json") and not args.emit_json:
+        quality_argv.append("--no-emit-json")
     if hasattr(args, "emit_markdown") and args.emit_markdown:
-        sys.argv.append("--emit-markdown")
+        quality_argv.append("--emit-markdown")
+    if hasattr(args, "emit_markdown") and not args.emit_markdown:
+        quality_argv.append("--no-emit-markdown")
     if hasattr(args, "emit_repair_feed") and args.emit_repair_feed:
-        sys.argv.append("--emit-repair-feed")
+        quality_argv.append("--emit-repair-feed")
+    if hasattr(args, "emit_repair_feed") and not args.emit_repair_feed:
+        quality_argv.append("--no-emit-repair-feed")
 
-    return run_format_quality_check()
+    return _run_with_argv(quality_argv, run_format_quality_check)
 
 
 def cmd_fix_format(args: argparse.Namespace) -> int:
@@ -213,17 +227,16 @@ def cmd_fix_format(args: argparse.Namespace) -> int:
     mode = "apply" if args.apply else "dry-run"
     print(f"[INFO] mode={mode} project_dir={project_dir}")
 
-    # Set up sys.argv for the format repair script
-    sys.argv = [
+    repair_argv = [
         "format_repair.py",
         "--project-dir", str(project_dir),
     ]
-    if args.dry_run:
-        sys.argv.append("--dry-run")
+    if not args.apply:
+        repair_argv.append("--dry-run")
     if hasattr(args, "issues_json") and args.issues_json:
-        sys.argv.extend(["--issues-json", args.issues_json])
+        repair_argv.extend(["--issues-json", args.issues_json])
 
-    return run_format_repair()
+    return _run_with_argv(repair_argv, run_format_repair)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -282,9 +295,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     add_project_arg(check_format_quality)
     check_format_quality.add_argument("--mode", default="fast", choices=["fast", "full"], help="Check mode")
-    check_format_quality.add_argument("--emit-json", action="store_true", help="Output JSON report")
-    check_format_quality.add_argument("--emit-markdown", action="store_true", help="Output Markdown report")
-    check_format_quality.add_argument("--emit-repair-feed", action="store_true", help="Output repair feed JSON")
+    check_format_quality.add_argument("--emit-json", dest="emit_json", action="store_true", default=True, help="Output JSON report (default)")
+    check_format_quality.add_argument("--no-emit-json", dest="emit_json", action="store_false", help="Disable JSON report output")
+    check_format_quality.add_argument("--emit-markdown", dest="emit_markdown", action="store_true", default=True, help="Output Markdown report (default)")
+    check_format_quality.add_argument("--no-emit-markdown", dest="emit_markdown", action="store_false", help="Disable Markdown report output")
+    check_format_quality.add_argument("--emit-repair-feed", dest="emit_repair_feed", action="store_true", default=True, help="Output repair feed JSON (default)")
+    check_format_quality.add_argument("--no-emit-repair-feed", dest="emit_repair_feed", action="store_false", help="Disable repair feed JSON output")
     check_format_quality.set_defaults(func=cmd_check_format_quality)
 
     fix_format = subparsers.add_parser(

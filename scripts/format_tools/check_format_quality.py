@@ -34,6 +34,8 @@ DEFAULT_OUT_DIR_REL = Path(".latex-cache/quality-check")
 DEFAULT_REPAIR_FEED_REL = Path(".latex-cache/format-fix/latest_check.json")
 DEFAULT_DOCX_REPORT_NAME = "quality_report.md"
 DEFAULT_MAIN_LOG_REL = Path(".latex-cache/main.log")
+CRLATEX_WIN_WINDOWS_PYTHON = Path("D:/Programe/anaconda3/envs/crlatex-win/python.exe")
+CRLATEX_WIN_WSL_PYTHON = Path("/mnt/d/Programe/anaconda3/envs/crlatex-win/python.exe")
 
 F_STAT_PATTERN = re.compile(r"F\s*[（(]\s*(\d+)\s*[,，]\s*(\d+)\s*[)）]")
 CJK_ABBR_LEFT_PATTERN = re.compile(r"([\u4e00-\u9fff])[ \t]+(Cd|Se)(?![A-Za-z])")
