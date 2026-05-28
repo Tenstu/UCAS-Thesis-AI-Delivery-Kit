@@ -31,6 +31,15 @@ python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Deliver
 
 当前版本是 MVP：已具备统一 CLI、最小 PDF/DOCX 导出链路、轻量格式/隐私检查、AI prompt 模板和发布打包门禁。后续会继续增强 UCAS 模板基线、Word 后处理和更细的格式规则。
 
+## 上游项目与关系
+
+本项目基于以下两个上游项目的经验和实践：
+
+- **[ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX)**：更完整的中国科研 LaTeX 写作与交付流程，包含完整的 UCAS 学位论文模板、Word 导出实践、AI 辅助写作工作流和交付门禁。**如需了解完整流程，请参考此项目。**
+- **[UCAS-Dissertation](https://github.com/Tenstu/UCAS-Dissertation)**：国科大学位论文 LaTeX 模板候选基线。
+
+**本项目定位**：专注于交付工具链（LaTeX → Word/PDF 导出、格式检查、隐私检查、发布打包），不重复上游项目的模板和写作流程。
+
 ## Why This Project
 
 UCAS thesis writing often starts comfortably in LaTeX, but the final workflow may

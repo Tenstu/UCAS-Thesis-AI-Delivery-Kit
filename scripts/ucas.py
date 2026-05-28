@@ -14,6 +14,10 @@ from scripts.checks.format import scan_format
 from scripts.checks.pack import create_release_zip
 from scripts.checks.privacy import scan_privacy
 from scripts.word_export.pandoc_export import ExportOptions, export_docx
+from scripts.tex_preprocessing.prepare_tex_for_word_export import (
+    build_steps as build_tex_preprocessing_steps,
+    run_step as run_tex_preprocessing_step,
+)
 
 
 def _project_dir(value: str | None) -> Path:
@@ -142,6 +146,33 @@ def cmd_pack(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_prepare_tex(args: argparse.Namespace) -> int:
+    project_dir = _project_dir(args.project_dir)
+    if not project_dir.exists():
+        print(f"[ERROR] 项目目录不存在：{project_dir}")
+        return 1
+
+    if args.apply and args.dry_run:
+        print("[ERROR] `--apply` 与 `--dry-run` 不能同时使用。")
+        return 1
+
+    mode = "apply" if args.apply else "dry-run"
+    print(f"[INFO] mode={mode} project_dir={project_dir}")
+    steps = build_tex_preprocessing_steps(
+        sys.executable,
+        project_dir,
+        apply=args.apply,
+        glob_pattern=args.glob,
+    )
+    for step in steps:
+        exit_code = run_tex_preprocessing_step(step, project_dir)
+        if exit_code != 0:
+            print(f"[STOP] {step.name} 失败，后续步骤已中止。")
+            return exit_code
+    print("[OK] 预处理链执行完成。")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="UCAS Thesis AI Delivery Kit")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -181,6 +212,16 @@ def build_parser() -> argparse.ArgumentParser:
     pack.add_argument("--output", default=None)
     pack.add_argument("--dry-run", action="store_true")
     pack.set_defaults(func=cmd_pack)
+
+    prepare_tex = subparsers.add_parser(
+        "prepare-tex",
+        help="Run TeX preprocessing for Word export (space cleanup + time unit normalization)",
+    )
+    add_project_arg(prepare_tex)
+    prepare_tex.add_argument("--glob", default="*.tex", help="File glob pattern")
+    prepare_tex.add_argument("--apply", action="store_true", help="Apply changes (default: dry-run)")
+    prepare_tex.add_argument("--dry-run", action="store_true", help="Explicit dry-run mode")
+    prepare_tex.set_defaults(func=cmd_prepare_tex)
 
     return parser
 
