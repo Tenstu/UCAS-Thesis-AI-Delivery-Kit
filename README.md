@@ -123,6 +123,52 @@ python scripts/ucas.py pack --project-dir . --dry-run
 - 对公开 synthetic project 做自动化回归。
 - 对 Windows + Microsoft Word 环境提供可选人工 smoke checklist。
 
+## AI 辅助能力
+
+本项目提供一套结构化的 AI 协作流程和 Prompt 模板，用于辅助论文交付全流程。
+AI 能力定位为**人工审阅的辅助层**，不是运行 CLI 的依赖，也不绑定特定 agent 框架。
+
+### AI 协作循环
+
+推荐的 AI 协作流程包含 6 个步骤：
+
+1. **明确本轮目标**：导出、格式检查、章节润色、引用核对或交付复核
+2. **准备最小材料**：只提供必要章节、规则、错误报告，避免信息过载
+3. **使用任务型 Prompt**：从 `prompts/` 目录选择对应模板
+4. **要求结构化输出**：问题清单、证据位置、风险等级和建议改法
+5. **人工确认后修改**：AI 建议需经人工确认再写入源文件
+6. **重新运行检查**：修改后运行 `check-format`、`check-privacy` 等命令验证
+
+### Prompt 模板
+
+`prompts/` 目录提供 5 个任务型模板，覆盖论文交付全流程：
+
+| 模板 | 用途 | 关键能力 |
+|---|---|---|
+| `chapter_polish.md` | 章节润色 | 保留 LaTeX 命令/引用/公式，修复逻辑跳跃和口语化，输出改写稿和改动说明 |
+| `format_audit.md` | 格式审查 | 检查标题层级、图表题/交叉引用、目录页码、参考文献一致性，只指出有证据的问题 |
+| `reference_check.md` | 引用一致性检查 | 检查正文 key 是否存在于 .bib、条目字段缺失、中英文文献格式、重复引用/漏引 |
+| `export_to_word.md` | Word 导出质检 | 按 Critical/Important/Minor 分级，区分可自动修复和必须人工复核项 |
+| `delivery_gate.md` | 交付门禁复核 | 输出 Pass/Conditional Pass/Blocked 决策，隐私泄漏或官方二进制误入时必须 Blocked |
+
+所有 Prompt 共同特征：角色明确、约束具体、输出格式结构化、强调证据驱动和人工确认。
+
+### AI 辅助边界
+
+AI 可以：
+- 发现格式风险和不一致
+- 归纳导师/审阅人意见
+- 草拟改写建议
+- 检查引用和格式一致性
+
+AI 不应替代：
+- 学校规范的最终判断
+- 导师审阅和学术意见
+- 隐私合规判断
+- 人工最终验收
+
+详细工作流说明参见 [docs/ai-workflow/README.md](docs/ai-workflow/README.md)。
+
 ## 常用命令
 
 ```bash
@@ -215,6 +261,13 @@ python scripts/ucas.py pack --project-dir . --dry-run
 python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/minimal.docx
 ```
+
+## 相关项目
+
+- [ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX) - 中文研究论文 LaTeX 模板集合
+- [UCAS-Dissertation](https://github.com/Tenstu/UCAS-Dissertation) - 中国科学院大学学位论文 LaTeX 模板
+
+本工具包与上述 LaTeX 模板配合使用，提供从 LaTeX 写作到 Word/PDF 交付的完整流程。
 
 ## 来源与许可
 
