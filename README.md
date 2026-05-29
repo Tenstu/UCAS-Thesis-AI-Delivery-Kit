@@ -1,11 +1,24 @@
 # UCAS-Thesis-AI-Delivery-Kit
 
-**面向中国科学院大学学位论文的 LaTeX -> Word/PDF 交付工具包。**
+**UCAS 学位论文 LaTeX -> Word/PDF 交付工具包 | AI 辅助写作 Harness | 格式检查 | 隐私门禁**
 
-本项目的目标不是再做一套论文模板，而是把“用 LaTeX 写作之后如何交付”
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Pandoc](https://img.shields.io/badge/pandoc-2.0+-green.svg)](https://pandoc.org/)
+
+**关键词**：UCAS 论文、学位论文、LaTeX Word 导出、AI 辅助写作、Harness Engineering、格式检查、隐私门禁、Pandoc、XeLaTeX、学术写作流程
+
+本项目的目标不是再做一套论文模板，而是把”用 LaTeX 写作之后如何交付”
 整理成可复用、可检查、可打包的命令行流程。核心贡献是围绕 UCAS 学位
 论文场景，提供从 TeX 预处理、DOCX 导出、格式检查、隐私检查到发布打包
 的一组公开工具和合成示例。
+
+## 适用场景
+
+- **UCAS 学位论文**：中国科学院大学博士/硕士学位论文的 LaTeX -> Word/PDF 交付
+- **AI 辅助写作**：结构化的 AI 协作流程，体现 Harness Engineering 思想
+- **格式检查**：自动化格式质量检查和修复
+- **隐私门禁**：交付前隐私检查和打包验证
 
 当前版本已经可以导出可审阅 DOCX。项目后续目标是逐步把 Word 导出做成
 “可直接交付最终 Word”的完整流程：导出、后处理、域更新、图表/参考文献
@@ -304,9 +317,23 @@ python scripts/ucas.py export-docx --project-dir template/tex --output dist/mini
 ## 相关项目
 
 - [ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX) - 中文研究论文 LaTeX 模板集合
+  - [thesis-writing-workflow](https://github.com/Tenstu/ChineseResearchLaTeX/tree/submit-thesis-writing-workflow/skills/thesis-writing-workflow) - 五步写作流程编排（Harness Engineering）
 - [UCAS-Dissertation](https://github.com/Tenstu/UCAS-Dissertation) - 中国科学院大学学位论文 LaTeX 模板
 
 本工具包与上述 LaTeX 模板配合使用，提供从 LaTeX 写作到 Word/PDF 交付的完整流程。
+
+## 学术引用
+
+如果您在学术工作中使用了本项目，请引用：
+
+```bibtex
+@software{ucas_thesis_ai_delivery_kit,
+  author = {Tenstu},
+  title = {UCAS-Thesis-AI-Delivery-Kit: LaTeX to Word/PDF Delivery Toolkit for UCAS Theses},
+  year = {2026},
+  url = {https://github.com/Tenstu/UCAS-Thesis-AI-Delivery-Kit}
+}
+```
 
 ## 来源与许可
 
