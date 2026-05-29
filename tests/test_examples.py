@@ -75,3 +75,14 @@ def test_phase3_word_export_fixtures_are_public_and_documented():
     assert "Supported" in doc_text
     assert "Unsupported" in doc_text
     assert "No generated DOCX fixture is committed" in doc_text
+
+
+def test_word_export_docs_explain_external_csl_source():
+    word_export_doc = REPO_ROOT / "docs" / "word-export" / "README.md"
+    doc_text = word_export_doc.read_text(encoding="utf-8")
+
+    assert "## CSL Style Source" in doc_text
+    assert "citation-style-language/styles-distribution" in doc_text
+    assert "china-national-standard-gb-t-7714-2015-author-date.csl" in doc_text
+    assert "CC BY-SA 3.0" in doc_text
+    assert "--csl path/to/china-national-standard-gb-t-7714-2015-author-date.csl" in doc_text

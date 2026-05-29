@@ -95,6 +95,9 @@ python scripts/ucas.py pack --project-dir . --dry-run
   `--citeproc`、`--csl` 和重复 `--bibliography`。
 - BibTeX 清洗：导出前把 `abstract`、`file`、`keywords` 等本地或冗余字段
   写入 sanitized 临时副本，避免污染 DOCX 引文输出。
+- CSL 来源说明：默认不把第三方 CSL 文件打进仓库；GB/T 7714-2015 样式
+  可按 [docs/word-export/README.md](docs/word-export/README.md) 的来源说明
+  下载后通过 `--csl` 显式传入。
 - `check-format-quality`：快速/完整格式质量检查入口。
 - `fix-format`：常见格式问题 dry-run-first 修复入口。
 - `check-privacy` 和 `pack`：交付前隐私和打包门禁。

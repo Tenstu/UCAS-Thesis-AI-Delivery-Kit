@@ -46,6 +46,32 @@ python scripts/ucas.py export-docx \
 `.latex-cache/word-export/` 下的 sanitized 副本，并移除 `abstract`、
 `file`、`keywords` 等不适合进入 Word 引文输出的字段。
 
+## CSL Style Source
+
+The Kit does not vendor third-party CSL files by default. For GB/T 7714-2015
+author-date output, use the public Citation Style Language distribution:
+
+- Repository: `citation-style-language/styles-distribution`
+- File: `china-national-standard-gb-t-7714-2015-author-date.csl`
+- License noted in the CSL metadata: `CC BY-SA 3.0`
+- Download page:
+  `https://github.com/citation-style-language/styles-distribution/blob/master/china-national-standard-gb-t-7714-2015-author-date.csl`
+
+Place the downloaded CSL file in your local thesis project or another tracked
+location whose provenance you control, then pass it explicitly:
+
+```bash
+python scripts/ucas.py export-docx \
+  --project-dir examples/thesis-project \
+  --citeproc \
+  --csl path/to/china-national-standard-gb-t-7714-2015-author-date.csl \
+  --bibliography examples/thesis-project/bibs/references.bib \
+  --output dist/main.docx
+```
+
+If a future release vendors a CSL file, update `PROVENANCE.md`,
+`LICENSE-NOTES.md`, and the release package allowlist in the same change.
+
 ## Expectations
 
 - `prepare-tex` normalizes CJK/Latin/number spacing and common time-unit spacing
