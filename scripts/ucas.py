@@ -109,6 +109,11 @@ def cmd_export_docx(args: argparse.Namespace) -> int:
             tex_file=args.tex_file,
             output=output,
             reference_doc=Path(args.reference_doc).resolve() if args.reference_doc else None,
+            citeproc=args.citeproc,
+            csl=Path(args.csl).resolve() if args.csl else None,
+            bibliographies=tuple(
+                Path(path).resolve() for path in (args.bibliography or [])
+            ),
         )
     )
     print(f"DOCX written: {docx}")
@@ -263,6 +268,14 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--tex-file", default="main.tex")
     export.add_argument("--output", default=None)
     export.add_argument("--reference-doc", default=None)
+    export.add_argument("--citeproc", action="store_true", help="Enable Pandoc citeproc")
+    export.add_argument("--csl", default=None, help="CSL style file for Pandoc citations")
+    export.add_argument(
+        "--bibliography",
+        action="append",
+        default=[],
+        help="BibTeX bibliography file; can be passed multiple times",
+    )
     export.set_defaults(func=cmd_export_docx)
 
     check_format = subparsers.add_parser("check-format", help="Run lightweight LaTeX format checks")

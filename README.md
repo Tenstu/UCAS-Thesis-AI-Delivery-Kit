@@ -91,7 +91,10 @@ python scripts/ucas.py pack --project-dir . --dry-run
 ### 当前已具备
 
 - `prepare-tex`：Word 导出前 TeX 预处理。
-- `export-docx`：通过 Pandoc 导出 DOCX。
+- `export-docx`：通过 Pandoc 导出 DOCX，支持 `--reference-doc`、
+  `--citeproc`、`--csl` 和重复 `--bibliography`。
+- BibTeX 清洗：导出前把 `abstract`、`file`、`keywords` 等本地或冗余字段
+  写入 sanitized 临时副本，避免污染 DOCX 引文输出。
 - `check-format-quality`：快速/完整格式质量检查入口。
 - `fix-format`：常见格式问题 dry-run-first 修复入口。
 - `check-privacy` 和 `pack`：交付前隐私和打包门禁。
@@ -100,8 +103,6 @@ python scripts/ucas.py pack --project-dir . --dry-run
 
 ### 近期目标
 
-- 增强 `export-docx` 的 CSL、BibTeX、`citeproc` 支持。
-- 增加 BibTeX 清洗，减少 Pandoc DOCX 中的参考文献异常。
 - 增加 DOCX 完整性检查和导出报告。
 - 定义最小 caption marker 协议，让图题、表题后处理有稳定输入。
 - 增加可选 Word 域更新命令，用于刷新目录、图目录、表目录等 Word 域。
@@ -126,6 +127,7 @@ python scripts/ucas.py --help
 python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
+python scripts/ucas.py export-docx --project-dir examples/thesis-project --citeproc --bibliography examples/thesis-project/bibs/references.bib --output dist/main.docx
 python scripts/ucas.py check-format --project-dir .
 python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast
 python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
@@ -139,7 +141,7 @@ python scripts/ucas.py pack --project-dir . --dry-run
 python scripts/ucas.py build-pdf     --project-dir <project>
 python scripts/ucas.py build-spine   --project-dir <project>
 python scripts/ucas.py prepare-tex   --project-dir <project> [--glob "*.tex"] [--dry-run|--apply]
-python scripts/ucas.py export-docx   --project-dir <project> --output dist/main.docx
+python scripts/ucas.py export-docx   --project-dir <project> --output dist/main.docx [--reference-doc reference.docx] [--citeproc] [--csl style.csl] [--bibliography refs.bib]
 python scripts/ucas.py check-format  --project-dir <project>
 python scripts/ucas.py check-format-quality --project-dir <project> --mode fast --emit-json --emit-repair-feed
 python scripts/ucas.py fix-format    --project-dir <project> [--issues-json .latex-cache/format-fix/latest_check.json] [--dry-run|--apply]

@@ -31,6 +31,21 @@ python scripts/ucas.py export-docx \
   --output dist/main.docx
 ```
 
+可选启用 Pandoc citation processing，并传入 CSL 与 BibTeX：
+
+```bash
+python scripts/ucas.py export-docx \
+  --project-dir examples/thesis-project \
+  --citeproc \
+  --csl path/to/style.csl \
+  --bibliography examples/thesis-project/bibs/references.bib \
+  --output dist/main.docx
+```
+
+`--bibliography` 可以重复传入。导出前，Kit 会把 BibTeX 写入
+`.latex-cache/word-export/` 下的 sanitized 副本，并移除 `abstract`、
+`file`、`keywords` 等不适合进入 Word 引文输出的字段。
+
 ## Expectations
 
 - `prepare-tex` normalizes CJK/Latin/number spacing and common time-unit spacing
@@ -47,8 +62,10 @@ Supported in the Phase 3 extraction plan:
   `examples/thesis-project/bibs/references.bib`.
 - Synthetic bilingual figure and table captions in
   `examples/thesis-project/extraTex/word_export_fixtures.tex`.
-- Future small commands for optional Word field updates, CSL/BibTeX command
-  construction, caption markers, and lightweight DOCX integrity reports.
+- Pandoc citation command construction with `--citeproc`, `--csl`, and repeated
+  `--bibliography`.
+- Future small commands for optional Word field updates, caption markers, and
+  lightweight DOCX integrity reports.
 
 Unsupported in the Delivery Kit unless a later PR adds a narrow contract:
 

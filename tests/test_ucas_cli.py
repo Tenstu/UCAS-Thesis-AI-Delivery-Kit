@@ -115,3 +115,42 @@ def test_choose_word_python_falls_back_without_crlatex_install(monkeypatch):
 
     assert interpreter == sys.executable
     assert source == "fallback_sys_executable"
+
+
+def test_export_docx_cli_passes_citation_options(monkeypatch, tmp_path):
+    captured_options = []
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    bib = project_dir / "references.bib"
+    bib.write_text("@article{synthetic}", encoding="utf-8")
+    csl = project_dir / "style.csl"
+    csl.write_text("<style />", encoding="utf-8")
+
+    def fake_export_docx(options):
+        captured_options.append(options)
+        return options.output
+
+    monkeypatch.setattr(ucas, "export_docx", fake_export_docx)
+
+    exit_code = ucas.main(
+        [
+            "export-docx",
+            "--project-dir",
+            str(project_dir),
+            "--output",
+            str(project_dir / "main.docx"),
+            "--citeproc",
+            "--csl",
+            str(csl),
+            "--bibliography",
+            str(bib),
+            "--bibliography",
+            str(bib),
+        ]
+    )
+
+    assert exit_code == 0
+    options = captured_options[0]
+    assert options.citeproc is True
+    assert options.csl == csl.resolve()
+    assert options.bibliographies == (bib.resolve(), bib.resolve())
