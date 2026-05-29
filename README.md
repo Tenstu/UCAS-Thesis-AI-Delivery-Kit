@@ -128,24 +128,21 @@ python scripts/ucas.py pack --project-dir . --dry-run
 本项目提供一套结构化的 AI 协作流程和 Prompt 模板，用于辅助论文交付全流程。
 AI 能力定位为**人工审阅的辅助层**，不是运行 CLI 的依赖，也不绑定特定 agent 框架。
 
-### AI 协作流程
+### AI 协作流程（Harness Engineering）
 
-本项目支持两种 AI 协作模式，分别适用于不同场景：
+本项目以 **五步写作流程** 为核心，体现了 **Harness Engineering** 的核心思想：将AI能力结构化地集成到人类主导的写作流程中，既利用AI的效率，又保持人类的控制权和学术诚信。
 
-#### 模式一：任务型 AI 辅助（单轮协作）
+**Harness Engineering 原则**：
+- **结构化集成**：五步流程定义了清晰的工作流，AI辅助被结构化地嵌入各阶段
+- **人类控制权**：主控角色（人工）负责最终裁定、正文回填、验证和提交
+- **可验证性**：每一步都有明确的输入输出，记录与正文分离确保可追溯性
+- **职责边界**：明确区分人类和AI的职责，AI作为工具辅助而非替代人类判断
 
-适用于单次任务（如格式检查、章节润色、引用核对），流程包含 6 个步骤：
+任务型 AI 辅助可以嵌入五步流程中的任何一步，提供针对性支持。
 
-1. **明确本轮目标**：导出、格式检查、章节润色、引用核对或交付复核
-2. **准备最小材料**：只提供必要章节、规则、错误报告，避免信息过载
-3. **使用任务型 Prompt**：从 `prompts/` 目录选择对应模板
-4. **要求结构化输出**：问题清单、证据位置、风险等级和建议改法
-5. **人工确认后修改**：AI 建议需经人工确认再写入源文件
-6. **重新运行检查**：修改后运行 `check-format`、`check-privacy` 等命令验证
+#### 五步写作流程（核心流程）
 
-#### 模式二：五步写作流程编排（长期协作）
-
-适用于长期论文写作、审阅回流和交付验证，参考 [ChineseResearchLaTeX - thesis-writing-workflow](https://github.com/Tenstu/ChineseResearchLaTeX/tree/submit-thesis-writing-workflow/skills/thesis-writing-workflow)：
+参考 [ChineseResearchLaTeX - thesis-writing-workflow](https://github.com/Tenstu/ChineseResearchLaTeX/tree/submit-thesis-writing-workflow/skills/thesis-writing-workflow)，五步流程定义了AI在协助论文写作的基本循环：
 
 ```text
 scan -> adjudicate -> apply -> verify -> deliver
@@ -157,12 +154,24 @@ scan -> adjudicate -> apply -> verify -> deliver
 4. **Verify（验证）**：执行目标检索、diff 检查和论文构建命令；涉及图表编号时同步检查引用、标签和图表环境参数
 5. **Deliver（交付）**：更新本轮摘要、未决项和人工审阅记录；若后续继续修改，追加新轮次，不覆盖旧记录
 
-**角色边界**：
-- 主控角色负责最终裁定、正文回填、验证和提交
-- 审查角色（AI）只输出候选问题，不直接修改正文
+#### 任务型 AI 辅助（嵌入五步流程）
+
+单轮任务型 AI 辅助（如章节润色、格式检查、引用核对）可以嵌入五步流程的任意一步，提供针对性支持：
+
+- **Scan 阶段**：使用 `format_audit.md` 或 `reference_check.md` 快速识别问题
+- **Adjudicate 阶段**：AI 辅助分类问题优先级，但最终裁定由人工决定
+- **Apply 阶段**：使用 `chapter_polish.md` 草拟改写建议，人工确认后回填
+- **Verify 阶段**：使用 `export_to_word.md` 检查 Word 导出质量
+- **Deliver 阶段**：使用 `delivery_gate.md` 进行交付门禁复核
+
+#### 角色边界
+
+- **主控角色**（人工）：负责最终裁定、正文回填、验证和提交
+- **审查角色**（AI）：只输出候选问题，不直接修改正文
 - 人工审阅意见先编号和分类，再进入正文回填
 
-**记录与正文分离**：
+#### 记录与正文分离
+
 - 正文源文件是唯一真相源
 - 候选问题记录、裁定记录、运行记录、交付记录都保存在隐藏工作目录中
 - 公开仓库只提交空模板和流程说明，不提交真实记录
