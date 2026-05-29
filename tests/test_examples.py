@@ -47,3 +47,31 @@ def test_thesis_project_example_supports_phase2_smoke_commands():
     )
     assert repair.returncode == 0, repair.stdout + repair.stderr
     assert "mode=dry-run" in repair.stdout
+
+
+def test_phase3_word_export_fixtures_are_public_and_documented():
+    bib_fixture = EXAMPLE_PROJECT / "bibs" / "references.bib"
+    tex_fixture = EXAMPLE_PROJECT / "extraTex" / "word_export_fixtures.tex"
+    word_export_doc = REPO_ROOT / "docs" / "word-export" / "README.md"
+
+    assert bib_fixture.exists()
+    bib_text = bib_fixture.read_text(encoding="utf-8")
+    assert "@article{synthetic-zh-2026" in bib_text
+    assert "@article{synthetic-en-2026" in bib_text
+    assert "合成土壤研究" in bib_text
+    assert "Synthetic soil study" in bib_text
+
+    assert tex_fixture.exists()
+    tex_text = tex_fixture.read_text(encoding="utf-8")
+    assert "\\begin{figure}" in tex_text
+    assert "\\begin{table}" in tex_text
+    assert "合成图" in tex_text
+    assert "Synthetic figure" in tex_text
+    assert "合成表" in tex_text
+    assert "Synthetic table" in tex_text
+
+    doc_text = word_export_doc.read_text(encoding="utf-8")
+    assert "## Phase 3 Boundary" in doc_text
+    assert "Supported" in doc_text
+    assert "Unsupported" in doc_text
+    assert "No generated DOCX fixture is committed" in doc_text

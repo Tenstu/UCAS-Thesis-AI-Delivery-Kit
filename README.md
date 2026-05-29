@@ -1,107 +1,125 @@
 # UCAS-Thesis-AI-Delivery-Kit
 
-**LaTeX → Word 交付，国科大学位论文首选**
+**面向中国科学院大学学位论文的 LaTeX -> Word/PDF 交付工具包。**
 
-UCAS Thesis AI Delivery Kit is the first open-source toolkit that enables UCAS dissertations to be exported from LaTeX to Word format for advisor review and submission. It also provides PDF export, AI-assisted review, format checks, and release gates.
+本项目的目标不是再做一套论文模板，而是把“用 LaTeX 写作之后如何交付”
+整理成可复用、可检查、可打包的命令行流程。核心贡献是围绕 UCAS 学位
+论文场景，提供从 TeX 预处理、DOCX 导出、格式检查、隐私检查到发布打包
+的一组公开工具和合成示例。
 
-中文名：国科大学位论文 AI 交付工具包。
+当前版本已经可以导出可审阅 DOCX。项目后续目标是逐步把 Word 导出做成
+“可直接交付最终 Word”的完整流程：导出、后处理、域更新、图表/参考文献
+处理、质量报告和交付门禁都由 Kit 串起来，而不是依赖人工记忆一串零散步骤。
 
-> **核心贡献**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出链路的开源项目，解决导师审阅和学位论文提交的格式转换需求。
+## 项目原则
 
-## 中文说明
+- **交付优先**：关注导师审阅、Word 提交、格式复核和发布打包这些实际交付问题。
+- **干运行优先**：会修改文件的命令默认预览，用户确认后再 `--apply`。
+- **公开示例优先**：仓库只放 synthetic fixture，不放私有论文正文、官方二进制模板或生成交付物。
+- **可验证优先**：每个导出能力都应有 fixture、测试、报告或 dry-run 证据。
+- **边界清楚**：来源、许可、隐私和发布内容通过 `PROVENANCE.md`、`LICENSE-NOTES.md`、`check-privacy` 和 `pack` 管住。
 
-这是一个面向中国科学院大学学位论文交付流程的工具包，重点不在”再做一套模板”，而在把 LaTeX 写作后的交付链路整理清楚：
+## Word 导出流程
 
-- **Word 导出（核心贡献）**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目，通过 `pandoc` 导出可审阅的 DOCX，解决导师审阅和学位论文提交的格式转换需求。
-- **PDF 导出**：用统一命令从 LaTeX 项目构建 PDF。
-- **AI 辅助审阅**：提供可复制的 prompt 模板，用于章节润色、格式审查、参考文献检查和交付门禁判断。
-- **格式自检**：在交付前扫描常见 LaTeX 写作风险，例如未清理占位符、引用标点间距、浮动体参数等。
-- **交付门禁**：打包前检查本机路径、高风险二进制文件、生成物和敏感标记，发布包只包含显式允许的源码、文档、prompt 和合成示例。
-- **来源可追溯**：用 `PROVENANCE.md` 和 `LICENSE-NOTES.md` 记录模板、官方材料和第三方内容的来源边界。
+推荐把 Word 导出理解为一条交付流水线，而不是单个转换命令。
 
-典型使用路径：
+### 1. 预处理 TeX
+
+先检查 Word 导出前的 TeX 清理建议：
 
 ```bash
-python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
-python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
-python scripts/ucas.py check-format --project-dir .
-python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast --emit-json --emit-repair-feed
-python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
-python scripts/ucas.py check-privacy --project-dir .
-python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
 ```
 
-当前版本是 MVP：已具备统一 CLI、最小 PDF/DOCX 导出链路、Word 导出前 TeX 预处理、轻量格式/隐私检查、格式质量巡检/修复工具、AI prompt 模板和发布打包门禁。后续会继续增强 UCAS 模板基线、Word 后处理和更细的格式规则。
+确认 dry-run 输出后再写回：
 
-## 上游项目与关系
+```bash
+python scripts/ucas.py prepare-tex --project-dir template/tex --apply
+```
 
-本项目基于以下两个上游项目的经验和实践：
+当前预处理会处理常见 CJK/Latin/数字间距和时间单位空格，同时保护 LaTeX
+命令、数学片段和结构化内容。
 
-- **[ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX)**：更完整的中国科研 LaTeX 写作与交付流程，包含完整的 UCAS 学位论文模板、Word 导出实践、AI 辅助写作工作流和交付门禁。**如需了解完整流程，请参考此项目。**
-- **[UCAS-Dissertation](https://github.com/Tenstu/UCAS-Dissertation)**：国科大学位论文 LaTeX 模板候选基线。
+### 2. 导出 DOCX
 
-**本项目定位**：专注于交付工具链（LaTeX → Word/PDF 导出、格式检查、隐私检查、发布打包），不重复上游项目的模板和写作流程。
+使用 Pandoc 生成 Word 草稿：
 
-## Why This Project
+```bash
+python scripts/ucas.py export-docx --project-dir template/tex --output dist/main.docx
+```
 
-UCAS thesis writing often starts comfortably in LaTeX, but the final workflow may
-require Word files, manual format review, advisor feedback, and carefully checked
-delivery packages. This project turns those recurring handoff steps into a small,
-scriptable toolkit.
+如需套用 Word 样式参考文件，可传入：
 
-It is not just another UCAS LaTeX template. The main value is the workflow around
-the template:
+```bash
+python scripts/ucas.py export-docx \
+  --project-dir template/tex \
+  --reference-doc path/to/reference.docx \
+  --output dist/main.docx
+```
 
-- export LaTeX drafts to reviewable Word and PDF outputs
-- run pre-delivery format checks
-- catch local paths, generated binaries, and risky files before packaging
-- use reusable AI prompts for review, polishing, and delivery decisions
-- package only an explicit allowlist of clean project files
+当前 `export-docx` 产物定位为“可审阅 DOCX”。最终提交前仍需检查目录、
+页眉页脚、页码、图表题注、参考文献和学校格式要求。
 
-## Highlights
+### 3. 检查和修复格式风险
 
-| Capability | Command or location | Purpose |
-|---|---|---|
-| **Word export (core)** | `python scripts/ucas.py export-docx` | **核心贡献**：可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目。通过 `pandoc` 导出可审阅的 DOCX，解决导师审阅和学位论文提交的格式转换需求。 |
-| TeX preprocessing | `python scripts/ucas.py prepare-tex` | Normalize TeX source before Word export, including CJK/Latin/number spacing and common time-unit spacing. Defaults to dry-run. |
-| PDF build | `python scripts/ucas.py build-pdf` | Build a thesis PDF through the local LaTeX toolchain. |
-| Spine build | `python scripts/ucas.py build-spine` | Build a spine/cover-side TeX file when the project provides one. |
-| Format check | `python scripts/ucas.py check-format` | Scan common LaTeX manuscript risks before handoff. |
-| Format quality check | `python scripts/ucas.py check-format-quality` | Generate fast/full format QA reports and optional repair feeds. |
-| Format repair | `python scripts/ucas.py fix-format` | Preview or apply common automated repairs. Defaults to dry-run. |
-| Privacy check | `python scripts/ucas.py check-privacy` | Detect local paths, sensitive markers, and high-risk binary files. |
-| Release pack | `python scripts/ucas.py pack` | Build a privacy-gated zip from an explicit allowlist. |
-| AI workflow | `prompts/`, `docs/ai-workflow/` | Provide task prompts for review, polish, references, and delivery gates. |
+对真实论文项目或 synthetic smoke project 运行质量检查：
 
-## Dependencies
+```bash
+python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast --emit-json --emit-repair-feed
+python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
+```
 
-Required:
+`check-format-quality` 生成质量报告和 repair feed；`fix-format` 默认只预览
+可自动修复项。
 
-- Python 3.10+
+### 4. 交付前门禁
 
-Optional by command:
+分享或打包前运行隐私和发布门禁：
 
-- `latexmk` or `xelatex` for `build-pdf` and `build-spine`
-- `pandoc` for `export-docx`
-- `biber` or `bibtex` for bibliography-aware fallback builds when `latexmk` is unavailable
-- `PyYAML` for YAML-based rule loading in `check-format-quality` when a rules file is present
+```bash
+python scripts/ucas.py check-privacy --project-dir .
+python scripts/ucas.py pack --project-dir . --dry-run
+```
 
-Development helpers:
+`pack` 只收录显式 allowlist 中的源码、文档、prompt 和公开示例，避免把本机
+路径、私有材料、生成 DOCX/PDF 或本地 agent 文件带入发布包。
 
-- `git` for version control
-- GitHub CLI `gh` for repository publishing
+## Word 导出规划
 
-Local AI skills, subagents, and prompt workflows are development and writing aids.
-They are not required to run the CLI.
+本项目的 Word 导出规划聚焦“让用户直接得到可交付 Word”的必要能力。
 
-`check-format-quality` and `fix-format` expect a thesis project root containing
-`main.tex` and `extraTex/`; use a real thesis project as `--project-dir`, not
-the tool repository root or the minimal `template/tex` smoke-test fixture.
-The checked-in `examples/thesis-project` directory is a synthetic project root
-for these Phase 2 smoke commands.
+### 当前已具备
 
-## Quick Start
+- `prepare-tex`：Word 导出前 TeX 预处理。
+- `export-docx`：通过 Pandoc 导出 DOCX。
+- `check-format-quality`：快速/完整格式质量检查入口。
+- `fix-format`：常见格式问题 dry-run-first 修复入口。
+- `check-privacy` 和 `pack`：交付前隐私和打包门禁。
+- `examples/thesis-project`：公开 synthetic fixture，包含中英文参考文献、
+  双语图题和双语表题样例。
+
+### 近期目标
+
+- 增强 `export-docx` 的 CSL、BibTeX、`citeproc` 支持。
+- 增加 BibTeX 清洗，减少 Pandoc DOCX 中的参考文献异常。
+- 增加 DOCX 完整性检查和导出报告。
+- 定义最小 caption marker 协议，让图题、表题后处理有稳定输入。
+- 增加可选 Word 域更新命令，用于刷新目录、图目录、表目录等 Word 域。
+
+### 中期目标
+
+- 增加 `postprocess-docx`，把 DOCX 检查、caption 处理、域更新和报告生成串起来。
+- 增加 UCAS Word profile 配置，明确元数据、章节结构、参考文献、图表题注和输出文件约定。
+- 增加 `export-final-word`，把 `prepare-tex -> export-docx -> postprocess-docx -> validate` 串成一条可复现命令。
+
+### 交付级目标
+
+- 输出 `final.docx` 和 `final-report.md`。
+- 报告目录、页眉页脚、页码、图表题注、参考文献和隐私检查结果。
+- 对公开 synthetic project 做自动化回归。
+- 对 Windows + Microsoft Word 环境提供可选人工 smoke checklist。
+
+## 常用命令
 
 ```bash
 python scripts/ucas.py --help
@@ -112,11 +130,8 @@ python scripts/ucas.py check-format --project-dir .
 python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast
 python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
 python scripts/ucas.py check-privacy --project-dir .
-python scripts/ucas.py pack --project-dir . --output dist/UCAS-Thesis-AI-Delivery-Kit.zip
+python scripts/ucas.py pack --project-dir . --dry-run
 ```
-
-The included `template/tex` files are synthetic minimal examples. They are meant
-to exercise the workflow, not to replace the official UCAS requirements.
 
 ## CLI Reference
 
@@ -132,79 +147,74 @@ python scripts/ucas.py check-privacy --project-dir <project>
 python scripts/ucas.py pack          --project-dir <project> --output dist/release.zip
 ```
 
-All commands accept `--project-dir`. The default is the current working directory.
-Commands that can modify TeX files default to dry-run; pass `--apply` only after
-reviewing the proposed changes.
+所有命令都接受 `--project-dir`。默认值是当前工作目录。会修改 TeX 文件的
+命令默认 dry-run，确认输出后再显式传入 `--apply`。
 
-## Project Layout
+## 依赖
+
+必需：
+
+- Python 3.10+
+
+按命令可选：
+
+- `pandoc`：用于 `export-docx`
+- `latexmk` 或 `xelatex`：用于 `build-pdf` 和 `build-spine`
+- `biber` 或 `bibtex`：当 `latexmk` 不可用且项目产生 bibliography 元数据时使用
+- `PyYAML`：当 `check-format-quality` 读取 YAML 规则文件时使用
+- Windows + Microsoft Word：后续 Word 域更新和最终 Word smoke 检查会使用
+
+本地 AI skills、subagents 和 prompt 工作流只是开发/写作辅助，不是运行 CLI 的依赖。
+
+## 项目结构
 
 ```text
 UCAS-Thesis-AI-Delivery-Kit/
 ├── template/              # minimal synthetic TeX entry points
 ├── scripts/
-│   ├── ucas.py             # unified CLI
-│   ├── word_export/        # DOCX export wrapper
-│   ├── tex_preprocessing/   # Word-export-oriented TeX preprocessing
-│   ├── format_tools/        # format QA and repair utilities
-│   └── checks/             # format, privacy, and pack gates
+│   ├── ucas.py            # unified CLI
+│   ├── word_export/       # DOCX export wrapper
+│   ├── tex_preprocessing/ # Word-export-oriented TeX preprocessing
+│   ├── format_tools/      # format QA and repair utilities
+│   └── checks/            # format, privacy, and pack gates
 ├── docs/
-│   ├── word-export/        # Word export notes
-│   ├── ai-workflow/        # AI collaboration workflow
-│   ├── rules/              # format-rule notes
-│   ├── development/        # build process and development notes
-│   └── official/           # official-material metadata policy
-├── prompts/                # reusable AI prompt templates
-├── examples/               # synthetic examples and Phase 2 smoke project
+│   ├── word-export/       # Word export notes
+│   ├── ai-workflow/       # AI collaboration workflow
+│   ├── rules/             # format-rule notes
+│   ├── development/       # build process and development notes
+│   └── official/          # official-material metadata policy
+├── examples/              # public synthetic examples and smoke fixtures
+├── prompts/               # reusable AI prompt templates
 ├── PROVENANCE.md
 ├── LICENSE-NOTES.md
 ├── LICENSE
 └── README.md
 ```
 
-## Verification
+## 验证
 
-Recommended checks before sharing a package:
+分享或发布前建议至少运行：
 
 ```bash
-python scripts/ucas.py check-format --project-dir .
-python scripts/ucas.py prepare-tex --project-dir template/tex --dry-run
-python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast --emit-json --emit-repair-feed
+python -m pytest tests/ -v
+python scripts/ucas.py --help
+python scripts/ucas.py check-format-quality --project-dir examples/thesis-project --mode fast
 python scripts/ucas.py fix-format --project-dir examples/thesis-project --dry-run
 python scripts/ucas.py check-privacy --project-dir .
 python scripts/ucas.py pack --project-dir . --dry-run
+```
+
+可选机器依赖检查：
+
+```bash
 python scripts/ucas.py build-pdf --project-dir template/tex
 python scripts/ucas.py export-docx --project-dir template/tex --output dist/minimal.docx
 ```
 
-`pack` runs the format and privacy gates, then writes only allowlisted files to
-the release zip. Generated files under `dist/` and LaTeX cache directories are
-ignored by Git.
+## 来源与许可
 
-## Source And Licensing
+仓库原创代码、文档、prompt 和 synthetic examples 使用 MIT License。
 
-Repository-original code, documentation, prompts, and synthetic examples are
-released under the MIT License.
-
-Official UCAS materials and any future third-party template imports must keep
-their own source and redistribution terms. This repository records those
-boundaries in [PROVENANCE.md](PROVENANCE.md) and [LICENSE-NOTES.md](LICENSE-NOTES.md).
-
-## Current Status
-
-MVP scaffold:
-
-- **Word export (core contribution)**: 可能是首个实现国科大学位论文 LaTeX 到 Word 完整导出的开源项目，通过 `pandoc` 导出可审阅的 DOCX
-- unified Python CLI
-- TeX preprocessing before Word export
-- minimal PDF build and DOCX export paths
-- lightweight format and privacy checks
-- fast/full format quality checks and dry-run-first repair tools
-- explicit allowlist release packaging
-- AI review and delivery prompt templates
-- synthetic TeX example for smoke testing
-
-Planned next steps:
-
-- import or align with a clean UCAS template baseline after provenance review
-- expand Word post-processing beyond the current `pandoc` beta path
-- add more UCAS-specific format rules and regression examples
+官方 UCAS 材料和任何第三方模板材料必须保留各自来源和再分发边界。本项目通过
+[PROVENANCE.md](PROVENANCE.md) 和 [LICENSE-NOTES.md](LICENSE-NOTES.md)
+记录这些边界。

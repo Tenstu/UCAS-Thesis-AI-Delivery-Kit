@@ -53,6 +53,8 @@ private/
 references_local/
 
 # Local agent or memory state: never vendor these into the project
+AGENTS.md
+HANDOFF.md
 .codex/
 .claude/
 .serena/

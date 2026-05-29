@@ -35,6 +35,17 @@ checked-in `examples/thesis-project` smoke path. The CLI help output lists
 repository root is a usage error, not a successful smoke test. Use
 `examples/thesis-project` for the checked-in synthetic Phase 2 smoke project.
 
+## Phase 3 Planning
+
+Phase 3 should extract only stable, low-coupling Word export utilities from the
+main `ChineseResearchLaTeX` UCAS thesis project. The current plan is documented
+in [v0.3.0-phase3-extraction-plan.md](v0.3.0-phase3-extraction-plan.md).
+
+The plan treats the main project's UCAS Word export workflow as the source of
+truth for capability discovery, but not as code to copy wholesale into this Kit.
+Recommended first step: add fixtures and tests before implementing advanced
+Word field updates, CSL/BibTeX handling, caption markers, or DOCX postprocessing.
+
 ## Local Skills Referenced During Development
 
 The following local skills guided the implementation process only:

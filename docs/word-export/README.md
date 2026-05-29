@@ -39,6 +39,30 @@ python scripts/ucas.py export-docx \
 - 目录、页眉页脚、封面、书脊、图表目录、复杂公式和浮动体都需要人工复核。
 - 官方 UCAS Word 模板默认不提交到仓库；只记录来源、checksum 和本地放置建议。
 
+## Phase 3 Boundary
+
+Supported in the Phase 3 extraction plan:
+
+- Synthetic fixtures for mixed Chinese/English bibliography records in
+  `examples/thesis-project/bibs/references.bib`.
+- Synthetic bilingual figure and table captions in
+  `examples/thesis-project/extraTex/word_export_fixtures.tex`.
+- Future small commands for optional Word field updates, CSL/BibTeX command
+  construction, caption markers, and lightweight DOCX integrity reports.
+
+Unsupported in the Delivery Kit unless a later PR adds a narrow contract:
+
+- UCAS cover metadata synchronization.
+- UCAS front/back matter section, header/footer, and page-number rules.
+- Full figure/table catalog page-number materialization.
+- Word OpenAndRepair as part of a large thesis-specific postprocess chain.
+- Private thesis content, official binary templates, and generated DOCX/PDF
+  deliverables.
+
+No generated DOCX fixture is committed in PR 1. A future field-update fixture
+must either be generated deterministically during tests or be introduced only
+after its source and redistribution safety are documented.
+
 ## Future Work
 
 - DOCX 后处理。
