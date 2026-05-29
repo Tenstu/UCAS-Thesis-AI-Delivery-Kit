@@ -316,7 +316,7 @@ python scripts/ucas.py export-docx --project-dir template/tex --output dist/mini
 
 ## 相关项目
 
-- [ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX) - 中文研究论文 LaTeX 模板集合
+- [ChineseResearchLaTeX](https://github.com/Tenstu/ChineseResearchLaTeX) - 中文研究论文 LaTeX 模板集合（基于 [huangwb8/ChineseResearchLaTeX](https://github.com/huangwb8/ChineseResearchLaTeX) 的个人改进版）
   - [thesis-writing-workflow](https://github.com/Tenstu/ChineseResearchLaTeX/tree/submit-thesis-writing-workflow/skills/thesis-writing-workflow) - 五步写作流程编排（Harness Engineering）
 - [UCAS-Dissertation](https://github.com/Tenstu/UCAS-Dissertation) - 中国科学院大学学位论文 LaTeX 模板
 
